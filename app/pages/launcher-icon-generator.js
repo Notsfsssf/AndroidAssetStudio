@@ -126,16 +126,16 @@ export class LauncherIconGenerator extends BaseGenerator {
       this.setImageForSlot_(density, ctx.canvas.toDataURL());
 
       // adaptive version background + foreground
-      this.zipper.add({
-        name: `res/mipmap-${density}/${values.name}_adaptive_back.png`,
-        canvas: this.regenerateRaw_({
-          mult: mult * ADAPTIVE_ICON_WIDTH / ICON_SIZE.w,
-          adaptive: 'back',
-        }).canvas
-      });
+      // this.zipper.add({
+      //   name: `res/mipmap-${density}/${values.name}_adaptive_back.png`,
+      //   canvas: this.regenerateRaw_({
+      //     mult: mult * ADAPTIVE_ICON_WIDTH / ICON_SIZE.w,
+      //     adaptive: 'back',
+      //   }).canvas
+      // });
 
       this.zipper.add({
-        name: `res/mipmap-${density}/${values.name}_adaptive_fore.png`,
+        name: `res/mipmap-${density}/${values.name}_foreground.png`,
         canvas: this.regenerateRaw_({
           mult: mult * ADAPTIVE_ICON_WIDTH / ICON_SIZE.w,
           adaptive: 'fore',
@@ -143,18 +143,23 @@ export class LauncherIconGenerator extends BaseGenerator {
       });
     }
 
+    this.zipper.add({
+      name: `res/values/${values.name}_background.xml`,
+      textData: this.makeBgXml_(values.name)
+    });
+
     // generate web/play version
     let ctx = this.regenerateRaw_({ mult: 512 / 48, fullBleed: true });
     this.zipper.add({
-      name: 'play_store_512.png',
+      name: 'ic_launcher-playstore.png',
       canvas: ctx.canvas
     });
     this.setImageForSlot_('play_store', ctx.canvas.toDataURL());
 
-    this.zipper.add({
-      name: '1024.png',
-      canvas: this.regenerateRaw_({ mult: 1024 / 48, fullBleed: true }).canvas
-    });
+    // this.zipper.add({
+    //   name: '1024.png',
+    //   canvas: this.regenerateRaw_({ mult: 1024 / 48, fullBleed: true }).canvas
+    // });
 
     // generate adaptive launcher XML
     this.zipper.add({
@@ -163,12 +168,21 @@ export class LauncherIconGenerator extends BaseGenerator {
     });
   }
 
+  makeBgXml_(name) {
+    return (
+`<?xml version="1.0" encoding="utf-8"?>
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@color/${name}_background"/>
+    <foreground android:drawable="@mipmap/${name}_foreground"/>
+</adaptive-icon>`);
+  }
+
   makeAdaptiveIconXml_(name) {
     return (
 `<?xml version="1.0" encoding="utf-8"?>
 <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
-  <background android:drawable="@mipmap/${name}_adaptive_back"/>
-  <foreground android:drawable="@mipmap/${name}_adaptive_fore"/>
+  <background android:drawable="@mipmap/${name}_background"/>
+  <foreground android:drawable="@mipmap/${name}_foreground"/>
 </adaptive-icon>`);
   }
 
